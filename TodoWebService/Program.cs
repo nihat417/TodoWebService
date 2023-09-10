@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TodoWebService;
 using TodoWebService.Data;
 using TodoWebService.Models.DTOs.Validations;
+using TodoWebService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,7 @@ builder.Services.AddDbContext<TodoDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
 });
-
+builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddAuthenticationAndAuthorization(builder.Configuration);
 
 builder.Services.AddSwagger();
