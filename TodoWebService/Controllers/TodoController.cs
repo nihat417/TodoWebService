@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using TodoWebService.Models.DTOs.Todo;
 using TodoWebService.Providers;
 using TodoWebService.Services;
@@ -21,17 +22,25 @@ namespace TodoWebService.Controllers
 		}
 
 		[HttpGet("get")]
-        public IActionResult Get()
-        {
-            var userInfo = _userProvider.GetUserInfo();
-            return Ok(userInfo);
-        }
+		public async Task<ActionResult<TodoItemDto>> Get(int Id)
+		{
+			var user = _userProvider.GetUserInfo();
 
-        [HttpPost("AddTodo")]
+			var item = await _todoService.GetTodoItem(user!.id, Id);
+
+
+			return item is not null
+				? item 
+				: NotFound();
+		}
+
+
+		[HttpPost("AddTodo")]
         public async Task<IActionResult> Post([FromBody] CreateTodoItemRequest request)
         {
             var userinfo = _userProvider.GetUserInfo();
             var createditem = await _todoService.CreateTodo(userinfo!.id,request);
+			Log.Information("created todo : {createditem}", createditem);
 			return CreatedAtAction(nameof(Get), new { id = createditem!.Id }, createditem);
 		}
 
@@ -51,6 +60,7 @@ namespace TodoWebService.Controllers
 		{
 			var user = _userProvider.GetUserInfo();
 			var result = await _todoService.DeleteTodo(user!.id, id);
+			Log.Information("Deleted todo : {result}", result);
 			return result ? result : NotFound();
 		}
 	}

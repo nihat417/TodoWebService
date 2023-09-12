@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using TodoWebService;
 using TodoWebService.Data;
 using TodoWebService.Models.DTOs.Validations;
@@ -12,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddHttpContextAccessor();
+Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
 
 builder.Services.AddDbContext<TodoDbContext>(options =>
 {
